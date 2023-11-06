@@ -1,58 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
-using namespace std;
-int main(){
-    int i,j,k,n,m,sum=0,x,y,h;
-    cout<<"Enter the size of disk\n";
-    cin>>m;
-    cout<<"Enter number of requests\n";
-    cin>>n;
-    cout<<"Enter the requests\n";
-    vector <int> a(n),l;
-    for(i=0;i<n;i++){
-        cin>>a[i];
-    }
-    for(i=0;i<n;i++){
-        if(a[i]>m){
-            cout<<"Error, Unknown position\n";
-            return 0;
-        }
-    }
-    cout<<"Enter the head position\n";
-    cin>>h;
+void clook()
+{
+    int request[100], n, head, size;
 
-    a.push_back(h);
-    sort(a.begin(),a.end());
+    printf("Enter the number of Requests\n");
+    scanf("%d", &n);
 
-    for(i=0;i<a.size();i++){
-        if(h==a[i])
-            break;
+    printf("Enter the Requests sequence\n");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &request[i]);
     }
-    k=i;
-    if(k<n/2){
-        for(i=k;i<a.size();i++){
-            l.push_back(a[i]);
-        }
-        for(i=0;i<k;i++){
-            l.push_back(a[i]);
-        }
-    }
-    else{
-        for(i=k;i>=0;i--){
-            l.push_back(a[i]);
-        }
-        for(i=a.size()-1;i>k;i--){
-            l.push_back(a[i]);
-        }
-    }
-    int temp=l[0];
-    cout<<temp;
-    for(i=1;i<l.size();i++){
-        cout<<" -> "<<l[i]<<' ';
-        sum+=abs(l[i]-temp);
-        temp=a[i];
-    }
-    cout<<'\n';
-    cout<<"Total head movements = "<< sum<<'\n';
 
+    printf("Enter head head posidon\n");
+    scanf("%d", &head);
+
+    printf("Enter total disk size\n");
+    scanf("%d", &size);
+
+    int seek_sequence[n];
+    int seek_count = 0;
+
+    // Sort the requests in ascending order
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            if (request[j] > request[j + 1])
+            {
+                // Swap requests
+                int temp = request[j];
+                request[j] = request[j + 1];
+                request[j + 1] = temp;
+            }
+        }
+    }
+
+    // Find the index of the first request greater than the head position
+    int start = 0;
+    while (start < n && request[start] < head)
+    {
+        start++;
+    }
+
+    // The head moves towards the greater request
+    int i = 0;
+    for (int index = start; index < n; index++)
+    {
+        seek_sequence[i] = request[index];
+        seek_count += abs(head - request[index]);
+        head = request[index];
+        i++;
+    }
+
+    // Once it reaches the end, it jumps to the first request
+    int index = 0;
+    for (index = 0; index < start; index++)
+    {
+        seek_sequence[i] = request[index];
+        seek_count += abs(head - request[index]);
+        head = request[index];
+        i++;
+    }
+
+    printf("Seek Sequence (C-LOOK): ");
+    for (int j = 0; j < n; j++)
+    {
+        printf("%d", seek_sequence[j]);
+        if (j != n - 1)
+        {
+            printf(" -> ");
+        }
+    }
+    printf("\n");
+    printf("Total Seek Count = %d\n", seek_count);
+}
+
+int main()
+{
+
+    clook();
     return 0;
 }
