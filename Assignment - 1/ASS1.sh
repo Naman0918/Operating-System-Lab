@@ -1,297 +1,153 @@
-#!/bin/sh
+#!/bin/bash
+#is to tell the system that this is a bash script
+#Initialize a variable to keep track of the current highest ID
+current_id=0
 
-
-
-# Run with -> $ bash addressbook.sh
-# Note : Do not use ./ to run
-
-# Output Formatting Line
-line() {
-    printf "\n=================================================================\n"
-}
-sline() {
-    echo "---------------------------------------------------------------"
+# Function to create a new address book file named "addressbook1.txt"
+create() {
+    touch addressbook1.txt # touch command is used to create a file
+    echo "AddressBook Created Successfully"
+    echo
 }
 
-# FILE FUNCTIONS
+# Function to get the next available ID
+get_next_id() {
+    # Generate a random number between 1 and 1000
+    current_id=$((1 + RANDOM % 1000))
+    echo "$current_id"
+}
 
-# To Insert a single record into the address book
-AddRecord() {
-    # Required to check the type of value in variable
-    re='^[0-9]+$'
-    # Taking Input from User for new Entry
-    echo "Enter the Details of Person"
+# Function to display the contents of the address book file
+display() {
+    cat addressbook1.txt # cat command is used to display the contents of a file
+    echo
+}
 
-    while [ -z $name ]; do # Do not allow Null
-        echo "Name "
+# Function to insert a new record into the address book file
+insert() {
+    id=$(get_next_id)
+    while true; do
+        echo "Enter name: "
         read name
+        # Validate name does not contain special characters
+        if [[ "$name" =~ [^a-zA-Z[:space:]] ]]; then
+            echo "Invalid name. Name should only contain letters, numbers, and spaces."
+        else
+            break
+        fi
     done
-    sline
-    while [ -z $phone ]; do
-        echo "Phone"
+
+    while true; do
+        echo "Enter phone: "
         read phone
-
-        # Input Validation for 10 digit number
-        if [ ${#phone} -ne 10 ] || ! [[ $phone =~ $re ]]; then
-            echo "Not a valid number"
-            unset phone # Unset the invalid phone number
-        fi
-
-        # Unique phone number validation
-        if [ -n $phone ]; then
-
-            (grep -r -w $phone $filename) && unset phone
-            if [ -z $phone ]; then
-                echo "ERROR : Phone number Already Present !"
-            fi
-
+        # Validate phone is numeric
+        if ! [[ "$phone" =~ ^[0-9]{10}$ ]]; then # use of $ to get the value of the variable
+            echo "Invalid phone number. Please enter a valid numeric value with 10 digits."
+        else
+            break
         fi
     done
-    sline
-    while [ -z $no_ ]; do
-        echo "Building / flat / house No "
-        read no_
-        if ! [[ $no_ =~ $re ]]; then
-            echo "Not a valid number"
-            unset no_
-        fi
 
-    done
-    sline
-    while [ -z $street ]; do
-        echo "Street "
-        read street
-    done
-    sline
-    while [ -z $state ]; do
-        echo "State "
-        read state
-    done
-    sline
-    while [ -z $city ]; do
-        echo "City "
+    while true; do
+        echo "Enter city: "
         read city
-    done
-    sline
-    while [ -z $zip ]; do
-        echo "Zip"
-        read zip
-
-        # Input Validation for 6 digit number
-        if [ ${#zip} -ne 6 ] || ! [[ $zip =~ $re ]]; then
-            echo "Not a valid number"
-            unset zip
+        # Validate city does not contain special characters
+        if [[ "$city" =~ [^a-zA-Z0-9[:space:]] ]]; then
+            echo "Invalid city. City should only contain letters, numbers, and spaces."
+        else
+            break
         fi
     done
-    sline
 
-    # Adding Record to the file
-    printf "\n%10s %10s %9s %8s %14s %10s %6s" $name $phone $no_ $street $state $city $zip >>"$filename"
+    while true; do
+        echo "Enter pincode: "
+        read pincode
+        # Validate pincode is numeric
+        if ! [[ "$pincode" =~ ^[0-9]{6}$ ]]; then
+            echo "Invalid pincode. Please enter a valid numeric value with 6 digits."
+        else
+            break
+        fi
+    done
 
-    printf "\nRecord Added Successfully "
-
-    # Unsetting variables for Next Record
-    unset zip
-    unset name
-    unset phone
-    unset street
-    unset state
-    unset city
-    unset no_
+    echo "$id $name $phone $city $pincode" >> addressbook1.txt # >> command is used to append the contents to a file
+    echo "Insert Successfully"
+    echo
 }
 
-
-
-
-# Search an entry from the address book
-SearchRecord() {
-    line
-
-    # Ask for key such as name,phone number
-    echo "Enter Search Key"
-    read key
-
-    # Search for that key and print appropiate message
-    (grep -r -w $key $filename && echo "Found") || echo "Not found"
-}
-
-
-# Delete an entry from the address book
-DeleteRecord() {
-    echo "Enter Name of you want"
-    read pattern
-    if grep -r -w $pattern $filename; then
-        sed -i "/$pattern/d" $filename
-        echo "Deletion Successful"
-    else
-        echo "Record Not Found !"
+# Function to delete a record from the address book file by ID
+delete() {
+    echo "Enter the id you want to delete: "
+    read id
+    # Check if the record with the specified ID exists
+    if ! grep -q "^$id\s" addressbook1.txt; then # -q is used to suppress the output of grep command
+        echo "Record with ID $id not found."
+        return
     fi
+    # Create a temporary file without the record to be deleted, then replace the original file
+    grep -v "^$id\s" addressbook1.txt >temp.txt # grep command is used to search for a pattern in a file and -v is used to invert the match
+    mv temp.txt addressbook1.txt # mv command is used to move a file 
+    echo "Record Deleted Successfully"
+    echo
 }
 
-ModifyRecord() {
-    echo "Enter the Details of Person"
-    read pattern
-    # Required to check the type of value in variable
-    re='^[0-9]+$'
-    # Taking Input from User for new Entry
-    echo "Enter the Details of Person"
-    while [ -z $name ]; do
-        echo "Name "
-        read name
-    done
-    sline
-    while [ -z $phone ]; do
-        echo "Phone"
-        read phone
-        if [ ${#phone} -ne 10 ] || ! [[ $phone =~ $re ]]; then
-            echo "Not a valid number"
-            unset phone
-        fi
-    done
-    sline
-    while [ -z $no_ ]; do
-        echo "Building / flat / house No "
-        read no_
-        if ! [[ $no_ =~ $re ]]; then
-            echo "Not a valid number"
-            unset no_
-        fi
-    done
-    sline
-    while [ -z $street ]; do
-        echo "Street "
-        read street
-    done
-    sline
-    while [ -z $state ]; do
-        echo "State "
-        read state
-    done
-    sline
-    while [ -z $city ]; do
-        echo "City "
-        read city
-    done
-    sline
-    while [ -z $zip ]; do
-        echo "Zip"
-        read zip
-        if [ ${#zip} -ne 6 ] || ! [[ $zip =~ $re ]]; then
-            echo "Not a valid number"
-            unset zip
-        fi
-    done
-    sline
+# Function to modify a record in the address book file by ID
+modify() {
+    echo "Enter the ID you want to Modify: "
+    read id
+    # Check if the record with the specified ID exists
+    if ! grep -q "^$id\s" addressbook1.txt; then
+        echo "Record with ID $id not found."
+        return
+    fi
+    echo "Enter new name: "
+    read name
+    echo "Enter new phone: "
+    read phone
+    echo "Enter new city: "
+    read city
+    echo "Enter new pincode: "
+    read pincode
+    # Use 'sed' command to replace the line containing the old record with the new record
+    sed -i "/^$id\s/c$id $name $phone $city $pincode" addressbook1.txt
 
-    # MODIFY THE RECORD
-    sed -i "/$pattern/c\ $name $phone $no_ $street $state $city $zip" $filename
-
-Roll no - 1234
-old Name - Tushar
-New Name - Rane
-
-sed -i "/$old_name/s\ $new-name" $filename
-
+    echo "Modified Successfully"
+    echo
 }
 
-# DISPLAY THE CONTENT OF THE FILE
-DisplayFile() {
-    echo "FILE NAME : $filename\n"
-    printf "\n      NAME      PHONE BUILDING STREET         STATE     CITY      ZIP\n"
-    sline
-    cat $filename
+# Function to display the menu options
+menu() {
+    echo "******"
+    echo "* 1. Create  *"
+    echo "* 2. Display *"
+    echo "* 3. Insert  *"
+    echo "* 4. Delete  *"
+    echo "* 5. Modify  *"
+    echo "* 6. Exit    *"
+    echo "******"
 }
 
-# DISPLAY THE CONTENT OF THE FILE WITH SORTING
-sorting() {
-    line
+# Infinite loop to keep the program running until the user chooses to exit
+while true; do
+    menu
+    echo "Enter your choice: "
+    read choice
+    echo
 
-    # ASK USER FOR WHICH COLUNM THEY WANT
-    echo "Sort by ?"
-    echo "1) Name"
-    echo "2) Phone"
-    echo "3) Building no."
-    echo "4) Street"
-    echo "5) State"
-    echo "6) City"
-    echo "7) Zip"
-    echo "Your Choice : "
-    read pattern
-    line
+    # Validate user's choice is a numeric value between 1 and 6
+    if ! [[ "$choice" =~ ^[1-6]$ ]]; then
+        echo "Invalid Choice. Please enter a numeric value between 1 and 6."
+        continue
+    fi
 
-    case $pattern in
-
-    1) sort -s -k1 $filename ;; # NAME WISE
-
-    2) sort -s -k2 $filename ;; # PHONE WISE
-
-    3) sort -s -k3 $filename ;; # BUILDING WISE
-
-    4) sort -s -k4 $filename ;; # STREET WISE
-
-    5) sort -s -k5 $filename ;; # STATE WISE
-
-    6) sort -s -k6 $filename ;; # CITY WISE
-
-    7) sort -s -k7 $filename ;; # ZIP WISE
-
-    # Inproper Option Handling
-    *) echo "ERROR :: Please Enter the Proper Option for 1 to 7." ;;
-    esac
-}
-
-# MAIN
-
-# MENU
-filename="addressbook.txt"
-touch $filename
-while :; do
-    line
-    echo "Address Book"
-    echo "1) Display Address Book"
-    echo "2) Add Record"
-    echo "3) Search"
-    echo "4) Delete"
-    echo "5) Modify"
-    echo "6) Sort"
-    echo "7) Exit"
-    echo "Your Choice : "
-    read Choice
-    line
-
-    case $Choice in
-
-    # Display the File
-    1) DisplayFile ;;
-
-    # Enter the Records
-    2)
-        echo "Enter the number of records to be inserted : "
-        read num
-        while [ $num -ne 0 ]; do
-            num=$(expr $num - 1)
-            AddRecord
-            line
-        done
-        ;;
-
-    # Search Some Record Within The File
-    3) SearchRecord ;;
-
-    # Delete Some Record from the File
-    4) DeleteRecord ;;
-
-    # Modify the Record of the File
-    5) ModifyRecord ;;
-
-    # Sort
-    6) sorting ;;
-
-    # Exit
-    7) exit ;;
-
-    # Inproper Option Handling
-    *) echo "ERROR :: Please Enter the Proper Option for 1 to 7." ;;
-    esac
+    # Process the user's choice using a case statement
+    case $choice in
+    1) create ;;  # Call the create function
+    2) display ;; # Call the display function
+    3) insert ;;  # Call the insert function
+    4) delete ;;  # Call the delete function
+    5) modify ;;  # Call the modify function
+    6) exit 0 ;;
+    esac # End of case statement
+    echo
 done
-line
