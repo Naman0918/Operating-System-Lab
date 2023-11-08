@@ -1,60 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
-using namespace std;
+void SCAN()
+{
+    int request[100], i, j, n, seek_count = 0, head, size, move;
+    printf("Enter the number of Requests\n");
+    scanf("%d", &n);
 
-int main(){
-    int i,j,k,n,m,sum=0,x,y,h;
-    cout<<"Enter the size of disk\n";
-    cin>>m;
-    cout<<"Enter number of requests\n";
-    cin>>n;
-    cout<<"Enter the requests\n";
-    vector <int> a(n),b;
-    for(i=0;i<n;i++){
-        cin>>a[i];
+    printf("Enter the Requests sequence\n");
+    for (i = 0; i < n; i++)
+    {
+        scanf("%d", &request[i]);
     }
-    for(i=0;i<n;i++){
-        if(a[i]>m){
-            cout<<"Error, Unknown position "<<a[i]<<"\n";
-            return 0;
+
+    printf("Enter head position\n");
+    scanf("%d", &head);
+
+    printf("Enter total disk size\n");
+    scanf("%d", &size);
+
+    printf("Enter the head movement direction for high 1 and for low 0\n");
+    scanf("%d", &move);
+// sorting the request array in ascending orders
+    for (i = 0; i < n -1; i++)
+    {
+        for (j = 0; j < n - i - 1; j++)
+        {
+            if (request[j] > request[j + 1])
+            {
+                int temp = request[j];
+                request[j] = request[j + 1];
+                request[j + 1] = temp;
+            }
         }
     }
-    cout<<"Enter the head position\n";
-    cin>>h;
-    int temp=h;
-    a.push_back(h);
-    a.push_back(m);
-    a.push_back(0);
-    sort(a.begin(),a.end());
-    for(i=0;i<a.size();i++){
-        if(h==a[i])
+
+    int index = -1;
+    for (i = 0; i < n; i++)// find index of head in request array
+    {
+        if (head < request[i]) // head < request[i] because we have to find the index of the first request which is greater than head
+        {
+            index = i;
             break;
-    }
-    k=i;
-    if(k<n/2){
-        for(i=k;i<a.size();i++){
-            b.push_back(a[i]);
-        }
-        for(i=k-1;i>=0;i--){
-            b.push_back(a[i]);
         }
     }
-    else{    
-        for(i=k;i>=0;i--){
-            b.push_back(a[i]);
+    // seek_count == seek_count
+    if (move == 1)
+    {
+        for (i = index; i < n; i++)
+        {
+            seek_count += abs(request[i] - head);
+            head = request[i];
         }
-        for(i=k+1;i<a.size();i++){
-            b.push_back(a[i]);
+        // for last request
+        seek_count += abs((size - 1) - request[n -1 ] );// request[i - 1] because we have to find the last request which is less than head
+        head = size - 1;
+        for (i = index - 1; i >= 0; i--)// index - 1 because we have to start from the request just before the head
+        {
+            seek_count += abs(request[i] - head);
+            head = request[i];
         }
     }
-    temp=b[0];
-    cout<<temp;
-    for(i=1;i<b.size();i++){
-        cout<<" -> "<<b[i];
-        sum+=abs(b[i]-temp);
-        temp=b[i];
+
+    else // if move == 0
+    {
+        for (i = index - 1; i >= 0; i--)
+        {
+            seek_count += abs(request[i] - head); // abs because head > request[i]
+            head = request[i];
+        }
+        seek_count +=  abs(request[0] - 0);// for last request
+        head = 0;
+        for (i = index; i < n; i++)// index because we have to start from the request just after the head
+        {
+            seek_count += abs(request[i] - head);// abs because head < request[i]
+            head = request[i];// head = request[i] because we have to move the head to the next request
+        }
     }
-    cout<<'\n';
-    cout<<"Total head movements = "<< sum<<'\n';
-    cout<<"Average head movement = "<<(float)sum/n<<'\n';
+    // printf("Seek Sequence (C-LOOK): ");
+    // for (int j = 0; j < n; j++)
+    // {
+    //     printf("P%d",);
+    //     if (j != n - 1)
+    //     {
+    //         printf(" -> ");
+    //     }
+    // }
+    printf("\n");
+    printf("Total Seek Count = %d\n", seek_count);
+
+}
+
+int main()
+{
+    SCAN();
     return 0;
 }
