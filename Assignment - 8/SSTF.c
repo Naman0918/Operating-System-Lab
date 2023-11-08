@@ -1,69 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
 
-using namespace std;
-int main(){
-    int i,j,k,n,m,sum=0,x,y,h;
-    cout<<"Enter the size of disk\n";
-    cin>>m;
-    cout<<"Enter number of requests\n";
-    cin>>n;
-    cout<<"Enter the requests\n";
+void sstf()
+{
+    int n, head;
+    printf("Enter the number of requests: ");
+    scanf("%d", &n);
 
-    //creating two arrays, array a will store the input
-    //I/O requests and array b will store the output
-    vector <int> a(n),b;
+    int request[n];
 
-    //creating a map to store the count of each element
-    //in the array a.
-    map <int,int> mp;
-    for(i=0;i<n;i++){
-        cin>>a[i];
-        mp[a[i]]++;
+    printf("Enter the head ");
+    scanf("%d", &head);
+
+    printf("Enter the request queue: ");
+    for (int i = 0; i < n; i++)
+    {
+        scanf("%d", &request[i]);
     }
-    for(i=0;i<n;i++){
-        if(a[i]>m){
-            cout<<"Error, Unknown position "<<a[i]<<"\n";
-            return 0;
-        }
-    }
-    cout<<"Enter the head position\n";
-    cin>>h;
-    int temp=h;
-    int ele;
-    b.push_back(h);
-    int count=0;
-    while(count<n){
-        //initially taking diff to be very large.
-        int diff=999999;
 
-        //traversing in map to find the least difference
-        for(auto q:mp){
-            if(abs(q.first-temp)<diff){
-                ele=q.first;
-                diff=abs(q.first-temp);
+    int seek_sequence[n];
+    int seek_count = 0;
+
+    int visited[n];
+
+    for (int i = 0; i < n; i++)
+    {
+        visited[i] = 0;
+    }
+
+    for (int i = 0; i < n; i++)
+    {
+        int min_seek = INT_MAX;
+        int min_seek_index = -1;
+
+        for (int j = 0; j < n; j++)
+        {
+            if (!visited[j])
+            {
+                int seek = abs(head - request[j]);
+                if (seek < min_seek)
+                {
+                    min_seek = seek;
+                    min_seek_index = j;
+                }
             }
         }
-        //deleting the element that has the least
-        //difference from the map
-        mp[ele]--;
-        if(mp[ele]==0){
-            mp.erase(ele);
-        }
-        //adding that element to our output array.
-        b.push_back(ele);
-        temp=ele;
-        count++;
+        visited[min_seek_index] = 1;
+        seek_sequence[i] = request[min_seek_index];
+        seek_count += min_seek;
+        head = request[min_seek_index];
     }
 
-    //printing the output array
-    cout<<b[0];
-    temp=b[0];
-    for(i=1;i<b.size();i++){
-        cout<<" -> "<<b[i];
-        sum+=abs(b[i]-temp);
-        temp=b[i];
+    printf("Seek Sequence (SSTF): ");
+    for (int i = 0; i < n; i++)
+    {
+        printf("%d", seek_sequence[i]);
+        if (i != n - 1)
+        {
+            printf(" -> ");
+        }
     }
-    cout<<'\n';
-    cout<<"Total head movements = "<< sum<<'\n';
-    cout<<"Average head movement = "<<(float)sum/n<<'\n';
+    printf("\n");
+    printf("Total Seek Count = %d\n", seek_count);
+}
+
+int main()
+{
+
+    sstf();
     return 0;
 }
