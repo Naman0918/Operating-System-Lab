@@ -40,29 +40,32 @@ void clook()
     }
 
     // Find the index of the first request greater than the head position
-    int start = 0;
-    while (start < n && request[start] < head)
+    int start = -1;
+    for (int i = 0; i < n; i++)// find index of head in request array
     {
-        start++;
+        if (head < request[i]) // head < request[i] because we have to find the index of the first request which is greater than head
+        {
+            start = i;
+            break;
+        }
     }
 
     // The head moves towards the greater request
     int i = 0;
-    for (int index = start; index < n; index++)
+    for (int j = start; j < n; j++)
     {
-        seek_sequence[i] = request[index];
-        seek_count += abs(head - request[index]);
-        head = request[index];
+        seek_sequence[i] = request[j];
+        seek_count += abs(head - request[j]);
+        head = request[j];
         i++;
     }
 
     // Once it reaches the end, it jumps to the first request
-    int index = 0;
-    for (index = 0; index < start; index++)
+    for (int j = 0; j < start; j++)
     {
-        seek_sequence[i] = request[index];
-        seek_count += abs(head - request[index]);
-        head = request[index];
+        seek_sequence[i] = request[j];
+        seek_count += abs(head - request[j]);
+        head = request[j];
         i++;
     }
 
