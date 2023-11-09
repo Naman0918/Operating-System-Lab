@@ -1,65 +1,90 @@
-#include<stdio.h>
-#include<unistd.h>
-#include<sys/types.h>
-#include<stdlib.h>
-#include<ctype.h>
-#include<string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <ctype.h>
+#include <sys/types.h>
+
+
+void bubblesort(int arr[], int n)
+{
+	for (int i = 0; i < n - 1; i++)
+	{
+		for (int j = 0; j < n - i - 1; j++)
+		{
+			if (arr[j] > arr[j + 1])
+			{
+				int temp = arr[j + 1];
+				arr[j + 1] = arr[j];
+				arr[j] = temp;
+			}
+		}
+	}
+}
+
 int main()
 {
-	int i,a[15],n,key;
-	char *arg[10],str[15],*str2;
-	pid_t parent_id,child_id,id; 
-	printf("\n Enter the size of the input array : ");
-	scanf("%d",&n);
-	printf("\n Enter the elements of the input array : ");
-	for(i=0;i<n;i++)
+	char *arg[20], str[20]; // args for execve command and str for converting int to string
+	int arr[100];
+	int n;
+
+	printf("\nEnter no of elements to entered in array");
+	scanf("%d", &n);
+	printf("\nEnter the array numbers");
+	for (int i = 0; i < n; i++)
 	{
-		scanf("%d",&a[i]);
+		scanf("%d ", &arr[i]);
 	}
-	parent_id=getpid();
-	printf("\n\nIn parent id->%d\n",parent_id);
-	printf("\n\nSorting Numbers\n");
-	callbubble(a,n);
-	id=fork();
-	if(id==0)
+	printf("\nProcess is with parent having id : %d", getpid());
+	printf("\n array before sorting is as follows");
+	for (int i = 0; i < n; i++)
 	{
-		child_id=getpid();
-		printf("\n\nIn child id->%d\n",child_id);
-		printf("\n\nThe Sorted Numbers are : ");
-		for(i=0;i<n;i++)
+		printf(" %d", arr[i]);
+	}
+	printf("\n");
+	printf("\n Calling bubble sort function in parent\n");
+	bubblesort(arr, n);
+	printf("\n Array after Sorting is as follows\n");
+	for (int i = 0; i < n; i++)
+	{
+		printf(" %d", arr[i]);
+	}
+	printf("\n");
+	printf("\n Forking the process now"); 
+	pid_t child = fork();// forking the process now means creating child process
+	if (child < 0)
+	{
+		printf("\n Error while creating child process");
+	}
+	else if (child == 0)
+	{
+		// child process is created now and it will execute the execve command
+		int i = 0;
+		printf("\n Process control is with child process");
+		printf("\n Child process id : %d", getpid()); // getpid is child process id
+		printf("\n Child parent process id : %d ", getppid()); //ppid is parent process id
+
+		for (i = 0; i < n; i++)
 		{
-			sprintf(str,"%d",a[i]);
-			arg[i]=malloc(sizeof(str));
-			strcpy(arg[i],str);
+			sprintf(str, "%d", arr[i]); // converting int to string using sprintf
+			arg[i] = malloc(sizeof(str));// allocating memory for arg array of char pointers
+			strcpy(arg[i], str); // copying the string to arg array of char pointers 
 		}
-		arg[i]=NULL;
-		printf("\n\nExecuting execve Statment\n");
-		execve("./2b2",arg,NULL);
-		printf("\n\nexecve Completed\n");
-		printf("\n\nChild Complete.   Now Child Exits\n\n");
+		
+		arg[i] = '\0'; // last element of arg array of char pointers is null 
+		printf("\nExecuting execve command now in child");
+		execve("./2bb2", arg, NULL);
+		printf("\n Execve is sussesfully executed now");
+		
+		printf("\nChild completely executed");
 	}
-	else if(id>0)
-	{
-		printf("\n\nIn Parent\n\nNow Waiting\n\n");
-		wait();
-		printf("\n\nParent Complete.   Now Parents Exits\n\n");
+	else
+	{ // parent process is executing now 
+	  // parent process will wait for child to get complete and then it will execute 
+		printf("\nProcess control is with parent process having id : %d", getppid());
+		printf("\nWating for child to get complete");
+		wait(NULL);
+		printf("\n Parent is back again");
+		printf("\n parent successsfuly executed");
 	}
-	return 0;
-}
-	
-callbubble(int array[15],int n)
-{
-	int d,swap,c;
-	for (c = 0 ; c < ( n - 1 ); c++)
-  	{
-    		for (d = 0 ; d < n - c - 1; d++)
-    		{
-      			if (array[d] > array[d+1]) /* For decreasing order use < */
-      			{
-        			swap = array[d];
-        			array[d] = array[d+1];
-        			array[d+1] = swap;
-      			}
-    		}
-  	}
 }
