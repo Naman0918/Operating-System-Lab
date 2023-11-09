@@ -115,6 +115,7 @@ modify() {
     echo
 }
 
+
 # Function to display the menu options
 menu() {
     echo "******"
@@ -133,12 +134,6 @@ while true; do
     echo "Enter your choice: "
     read choice
     echo
-
-    # Validate user's choice is a numeric value between 1 and 6
-    if ! [[ "$choice" =~ ^[1-6]$ ]]; then
-        echo "Invalid Choice. Please enter a numeric value between 1 and 6."
-        continue
-    fi
 
     # Process the user's choice using a case statement
     case $choice in
