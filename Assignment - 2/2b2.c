@@ -1,36 +1,27 @@
- #include<stdio.h>
-int main(int argc, char* argv[])
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]) // argc is the number of command line arguments passed to the program including the name of the program
 {
-
-	int a[10],i,m,c=0,l,u,mid;
-    	printf("\n\nEnter the number to be searched  :  ");
-    	scanf("%d",&m);
-	for(i=0;i<argc;i++)
+	int a[100]; // array to store the command line arguments
+	int n;
+	printf("\n Enter number to find in array :");
+	scanf("%d", &n);
+	for (int i = 0; i < argc; i++)
 	{
-		a[i]=atoi(argv[i]);
+		a[i] = atoi(argv[i]); // converting the command line arguments to integer and storing in array
+		// atoi is used to convert string to integer
 	}
-       	l=0,u=i-1;
-    	while(l<=u)
+	// for loop to print reverse numbers
+	//reverse numbers
+	for (int i = 0; i < argc; i++) // argc is the number of command line arguments passed to the program including the name of the program
 	{
-        	mid=(l+u)/2;
-        	if(m==a[mid])
+		if (a[i] == n)
 		{
-             		c=1;
-             		break;
-         	}
-         	else if(m<a[mid])
-	 	{
-         		u=mid-1;
-         	}
-         	else
-	 	{
-             		l=mid+1;
-	 	}
-    	}
-    	if(c==0)
-        	printf("\n\nThe number is not found.");
-    	else
-         	printf("\n\nThe number is found.");
-
+			printf("\n Entered number is found in array");
+			return 0;
+		}
+	}
+	printf("\n Entered number is not in array");
 	return 0;
 }
